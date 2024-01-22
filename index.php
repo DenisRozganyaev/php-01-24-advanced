@@ -1,5 +1,7 @@
 <?php
 
+# comment
+
 function showSmth()
 {
     phpinfo();
