@@ -1,8 +1,8 @@
 <?php
 
-function display_info()
+function showSmth()
 {
     phpinfo();
 }
 
-display_info();
+showSmth();
