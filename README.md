@@ -1,0 +1,25 @@
+AUTO PARK (Taxi)
+
+- Parks
+  - id
+  - name/address
+- Cars
+  - id
+  - park_id
+  - model
+  - price
+- Drivers
+  - id
+  - name
+  - phone
+  - car_id
+- Customers
+  - name
+  - phone
+- Orders
+  - id
+  - driver_id
+  - customer_id
+  - start
+  - finish
+  - total
