@@ -11,7 +11,7 @@ class Router
     use HttpMethods;
 
     protected static Router|null $instance = null;
-    protected array $routes = [], $params = [];
+    protected array $routes = [], $params = []; // [ 'get' => [], 'post' => [] ]
     protected string $currentRoute;
 
     protected array $convertTypes = [
@@ -128,12 +128,21 @@ class Router
             if ($controller->before($action, $router->params)) {
                 $response = call_user_func_array([$controller, $action], $router->params);
                 $controller->after($action);
+
+                if ($response) {
+                    return \Core\json_response($response['code'], [
+                        'data' => $response['body'],
+                        'errors' => $response['errors']
+                    ]);
+                }
             }
         }
 
-        return \Core\json_response($response['code'], [
-            'data' => $response['body'],
-            'errors' => $response['errors']
+        return \Core\json_response(500, [
+            'data' => [],
+            'errors' => [
+                'message' => 'Empty response'
+            ]
         ]);
     }
 
