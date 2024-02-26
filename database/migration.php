@@ -56,6 +56,7 @@ class Migration
             if ($query->execute()) {
                 $this->logIntoMigrations($migration);
                 $this->log("- [$migration] DONE!");
+                $query->closeCursor();
             }
         }
 
@@ -67,6 +68,7 @@ class Migration
         $query = db()->prepare("INSERT INTO migrations (name) VALUES (:migration)");
         $query->bindParam('migration', $migration);
         $query->execute();
+        $query->closeCursor();
     }
 
     protected function isMigrationsWasRun(string $migration): bool
@@ -75,7 +77,11 @@ class Migration
         $query->bindParam('name', $migration);
         $query->execute();
 
-        return (bool) $query->fetch();
+        $result = (bool) $query->fetch();
+
+        $query->closeCursor();
+
+        return $result;
     }
 
     protected function createMigrationTable(): void
@@ -89,7 +95,7 @@ class Migration
               false => '- Failed'
           }
         );
-
+        $query->closeCursor();
         $this->log('Finished migration table query');
     }
 

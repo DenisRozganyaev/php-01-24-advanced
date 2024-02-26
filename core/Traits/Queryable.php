@@ -89,6 +89,13 @@ trait Queryable
         ];
     }
 
+    static public function destroy(int $id): bool
+    {
+        $query = db()->prepare("DELETE FROM " . static::$tableName . " WHERE id = :id");
+        $query->bindParam('id', $id);
+        return $query->execute();
+    }
+
     static protected function resetQuery(): void
     {
         static::$query = '';
@@ -143,6 +150,8 @@ trait Queryable
         }
 
         static::$query .= " AND";
+        $this->openCondition();
+
         return $this->where($column, $operator, $value);
     }
 
@@ -156,6 +165,7 @@ trait Queryable
         }
 
         static::$query .= " OR";
+        $this->openCondition();
         return $this->where($column, $operator, $value);
     }
 
@@ -190,9 +200,24 @@ trait Queryable
         return static::find($this->id);
     }
 
+    protected function openCondition(): void
+    {
+        if (in_array('startCondition', $this->commands)) {
+            static::$query .= ' (';
+            unset($this->commands[array_search('startCondition', $this->commands)]);
+        }
+    }
+
     protected function updatePlaceholders(array $keys): string
     {
+        $string = '';
+        $lastKey = array_key_last($keys);
 
+        foreach($keys as $index => $key) {
+            $string .= "$key = :$key" . ($index === $lastKey ? '' : ', ');
+        }
+
+        return $string;
     }
 
     public function exists(): bool
@@ -210,6 +235,27 @@ trait Queryable
     public function get(): array
     {
         return db()->query(static::$query)->fetchAll(PDO::FETCH_CLASS, static::class);
+    }
+
+    public function take(): static
+    {
+        $query = db()->prepare(static::$query);
+        $query->setFetchMode(PDO::FETCH_CLASS, static::class);
+        $query->execute();
+        return $query->fetch();
+    }
+
+    public function startCondition(): static
+    {
+        $this->commands[] = 'startCondition';
+        return $this;
+    }
+
+    public function endCondition(): static
+    {
+        $this->commands[] = 'endCondition';
+        static::$query .= ')';
+        return $this;
     }
 
     public function sql(): string

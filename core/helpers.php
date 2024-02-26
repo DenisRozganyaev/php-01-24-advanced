@@ -15,6 +15,7 @@ function json_response(int $code = 200, array $data = []): string
         200 => '200 OK',
         400 => '400 Bad Request',
         403 => '403 Forbidden',
+        404 => '404 Not found',
         405 => '405 Method not allowed',
         422 => '422 Unprocessable Entity',
         500 => '500 Internal Server Error',
