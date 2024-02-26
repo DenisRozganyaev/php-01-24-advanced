@@ -1,0 +1,1 @@
+ALTER TABLE notes ADD COLUMN title VARCHAR(255) AFTER folder_id;
