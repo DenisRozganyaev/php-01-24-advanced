@@ -38,7 +38,7 @@ class NotesController extends BaseApiController
             return $this->response(403, errors: ['message' => 'This resource is forbidden for you']);
         }
 
-        return $this->response(body: $note->toArray());
+        return $this->response(body: $note->withSharedUsers()->toArray());
     }
 
     public function store()

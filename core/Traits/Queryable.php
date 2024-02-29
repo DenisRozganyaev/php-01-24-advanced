@@ -140,6 +140,28 @@ trait Queryable
         return $obj;
     }
 
+    public function join(string $table, array $conditions, string $type = 'LEFT'): static
+    {
+        if (!$this->prevent(['select'])) {
+            throw new \Exception(
+                static::class .
+                ": JOIN can not be used before SELECT"
+            );
+        }
+
+        $this->commands[] = 'join';
+
+        static::$query .= " $type JOIN $table ON ";
+
+        $lastKey = array_key_last($conditions);
+
+        foreach ($conditions as $key => $condition) {
+            static::$query .= "$condition[left] $condition[operator] $condition[right]" . ($key !== $lastKey ? " AND " : "");
+        }
+
+        return $this;
+    }
+
     public function and(string $column, SQL $operator = SQL::EQUAL, $value = null): static
     {
         if (!in_array('where', $this->commands)) {
@@ -235,6 +257,18 @@ trait Queryable
     public function get(): array
     {
         return db()->query(static::$query)->fetchAll(PDO::FETCH_CLASS, static::class);
+    }
+
+    public function pluck(string $column): array
+    {
+        $plucked = [];
+        $result = db()->query(static::$query)->fetchAll();
+
+        if (!empty($result)) {
+            $plucked = array_map(fn($item) => $item[$column], $result);
+        }
+
+        return $plucked;
     }
 
     public function take(): static

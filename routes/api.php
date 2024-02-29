@@ -46,9 +46,9 @@ Router::delete('api/notes/{id:\d+}/destroy')
     ->action('destroy');
 
 
-Router::post('api/notes/{note_id:\d+}/share/add')
+Router::post('api/notes/{note_id:\d+}/shared/add')
     ->controller(\App\Controllers\SharedNotesController::class)
     ->action('add');
-Router::delete('api/notes/{id:\d+}/shared/remove')
+Router::delete('api/notes/{note_id:\d+}/shared/remove')
     ->controller(\App\Controllers\SharedNotesController::class)
     ->action('remove');

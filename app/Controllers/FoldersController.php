@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\Folder;
 use App\Models\Note;
+use App\Models\SharedNote;
 use App\Validators\Folders\CreateFolderValidator;
 use App\Validators\Folders\UpdateFolderValidator;
 use Enums\SQL;
@@ -107,6 +108,23 @@ class FoldersController extends BaseApiController
         $notes = match($folder->title) {
             Folder::GENERAL_FOLDER => Note::where('folder_id', value: $folder_id)
                 ->and('user_id', value: authId())->get(),
+            Folder::SHARED_FOLDER => Note::select([Note::$tableName . '.*'])
+                ->join(
+                    SharedNote::$tableName,
+                    [
+                        [
+                            'left' => 'notes.id',
+                            'operator' => '=',
+                            'right' => SharedNote::$tableName . '.note_id'
+                        ],
+                        [
+                            'left' => authId(),
+                            'operator' => '=',
+                            'right' => SharedNote::$tableName . '.user_id'
+                        ]
+                    ],
+                    'INNER'
+                )->get(),
             default => Note::where('folder_id', value: $folder_id)->get()
         };
 
