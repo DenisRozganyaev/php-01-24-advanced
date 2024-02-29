@@ -29,7 +29,7 @@ class SharedNoteValidator extends BaseValidator
         return $exists;
     }
 
-    protected function isNoteSharedWithUser(array $fields): bool
+    public function isNoteSharedWithUser(array $fields): bool
     {
 
         $alreadyShared = SharedNote::where('user_id', value: $fields['user_id'])
@@ -57,7 +57,6 @@ class SharedNoteValidator extends BaseValidator
             [
                 parent::validate($fields),
                 $this->isUserExists($fields),
-                !$this->isNoteSharedWithUser($fields),
                 $this->sharedUserIsNotOwner($fields)
             ]
         );
